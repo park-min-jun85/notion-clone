@@ -25,9 +25,15 @@ export function GoogleLoginButton({
 
   const message =
     localError ??
-    (error === "oauth"
-      ? "Google 로그인에 실패했습니다. OAuth 클라이언트와 Supabase Google provider 설정을 확인하세요."
-      : null)
+    (error === "no_code"
+      ? "Google 로그인 후 앱으로 코드가 전달되지 않았습니다. Supabase Redirect URLs에 https://notion-clone-rosy.vercel.app/auth/callback 이 있는지 확인하세요."
+      : error === "exchange"
+        ? "로그인 세션을 만들지 못했습니다. 같은 브라우저에서 다시 시도하거나, 카카오/인앱 브라우저가 아니라 Chrome에서 열어 보세요."
+        : error === "no_session"
+          ? "로그인은 됐지만 세션 쿠키가 저장되지 않았습니다. 브라우저가 쿠키를 막고 있지 않은지 확인하세요."
+          : error === "oauth"
+            ? "Google 로그인에 실패했습니다. OAuth 클라이언트와 Supabase Google provider 설정을 확인하세요."
+            : null)
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-sidebar px-4">

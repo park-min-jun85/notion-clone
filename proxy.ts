@@ -3,13 +3,9 @@ import { NextResponse, type NextRequest } from "next/server"
 import { getSupabaseEnv } from "@/lib/supabase/env"
 import { toNextCookieOptions } from "@/lib/supabase/cookies"
 
-function isPublicPath(pathname: string) {
-  return pathname === "/login" || pathname.startsWith("/auth/")
-}
-
 export async function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/auth/")) {
-    return NextResponse.next()
+    return NextResponse.next({ request })
   }
 
   let supabaseResponse = NextResponse.next({ request })
@@ -33,33 +29,9 @@ export async function proxy(request: NextRequest) {
     },
   })
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  const publicRoute = isPublicPath(request.nextUrl.pathname)
-
-  if (!user && !publicRoute) {
-    const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = "/login"
-    loginUrl.searchParams.set("next", request.nextUrl.pathname)
-    const redirect = NextResponse.redirect(loginUrl)
-    supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirect.cookies.set(cookie)
-    })
-    return redirect
-  }
-
-  if (user && request.nextUrl.pathname === "/login") {
-    const homeUrl = request.nextUrl.clone()
-    homeUrl.pathname = "/"
-    homeUrl.search = ""
-    const redirect = NextResponse.redirect(homeUrl)
-    supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirect.cookies.set(cookie)
-    })
-    return redirect
-  }
-
+  // Refresh/validate the JWT only. Do not redirect unauthenticated users here —
+  // that was sending people to /login?next=/ right after Google OAuth.
+  await supabase.auth.getClaims()
   return supabaseResponse
 }
 

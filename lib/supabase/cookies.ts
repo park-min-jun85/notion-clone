@@ -3,11 +3,11 @@ import type { CookieOptions } from "@supabase/ssr"
 export function toNextCookieOptions(options: CookieOptions) {
   const sameSite = options.sameSite
   return {
-    path: options.path ?? "/",
+    path: "/",
     maxAge: options.maxAge,
     expires: options.expires,
     httpOnly: options.httpOnly,
-    secure: options.secure ?? process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" ? true : (options.secure ?? false),
     sameSite:
       sameSite === "none" || sameSite === "lax" || sameSite === "strict"
         ? sameSite

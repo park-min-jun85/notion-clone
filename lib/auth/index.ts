@@ -26,9 +26,20 @@ function toSessionUser(user: {
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const supabase = await createClient()
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data.user) return null
-  return toSessionUser(data.user)
+  const { data, error } = await supabase.auth.getClaims()
+  const claims = data?.claims
+  if (error || !claims?.sub) return null
+
+  const metadata =
+    claims.user_metadata && typeof claims.user_metadata === "object"
+      ? (claims.user_metadata as Record<string, unknown>)
+      : {}
+
+  return toSessionUser({
+    id: claims.sub,
+    email: typeof claims.email === "string" ? claims.email : undefined,
+    user_metadata: metadata,
+  })
 }
 
 export async function requireUser(): Promise<SessionUser> {

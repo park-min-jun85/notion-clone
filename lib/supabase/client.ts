@@ -7,6 +7,7 @@ export function createClient() {
     cookieOptions: {
       path: "/",
       sameSite: "lax",
+      secure: typeof window !== "undefined" ? window.location.protocol === "https:" : true,
     },
     auth: {
       detectSessionInUrl: false,
