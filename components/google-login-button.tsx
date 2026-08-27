@@ -3,14 +3,20 @@
 import { useState } from "react"
 import { signInWithGoogle } from "@/lib/auth/google"
 
-export function GoogleLoginButton({ error }: { error?: string }) {
+export function GoogleLoginButton({
+  error,
+  next,
+}: {
+  error?: string
+  next?: string
+}) {
   const [pending, setPending] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
 
   async function handleClick() {
     setPending(true)
     setLocalError(null)
-    const result = await signInWithGoogle()
+    const result = await signInWithGoogle(next)
     if (result.error) {
       setLocalError(result.error)
       setPending(false)

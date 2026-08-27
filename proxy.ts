@@ -18,6 +18,12 @@ function copyCookies(from: NextResponse, to: NextResponse) {
 }
 
 export async function proxy(request: NextRequest) {
+  // Do not touch cookies on the OAuth callback. The route handler must be
+  // able to write the new session onto its own redirect response.
+  if (request.nextUrl.pathname.startsWith("/auth/")) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
   const { url, publishableKey } = getSupabaseEnv()
 

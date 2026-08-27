@@ -18,12 +18,17 @@
  */
 import { createClient } from "@/lib/supabase/client"
 
-export async function signInWithGoogle(): Promise<{ error?: string }> {
+export async function signInWithGoogle(next = "/"): Promise<{ error?: string }> {
   const supabase = createClient()
+  const redirectTo = new URL("/auth/callback", window.location.origin)
+  if (next.startsWith("/") && !next.startsWith("//")) {
+    redirectTo.searchParams.set("next", next)
+  }
+
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: redirectTo.toString(),
     },
   })
 
