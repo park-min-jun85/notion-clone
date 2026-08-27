@@ -24,6 +24,8 @@ type Props = {
   userName: string
   navTree: NavItem[]
   activeId: string
+  mobileOpen: boolean
+  desktopCollapsed: boolean
   onSelect: (id: string) => void
   onCollapse: () => void
   onCreatePage: (parentId?: string) => void
@@ -96,7 +98,7 @@ function NavRow({
           trigger={
             <button
               type="button"
-              className="hidden group-hover:flex h-5 w-5 items-center justify-center rounded hover:bg-black/10 text-muted-foreground"
+              className="flex h-5 w-5 items-center justify-center rounded hover:bg-black/10 text-muted-foreground md:hidden md:group-hover:flex"
               aria-label="페이지 메뉴"
             >
               <MoreHorizontal className="h-3.5 w-3.5" />
@@ -123,7 +125,7 @@ function NavRow({
             e.stopPropagation()
             onCreatePage(item.id)
           }}
-          className="hidden group-hover:flex h-5 w-5 items-center justify-center rounded hover:bg-black/10 text-muted-foreground"
+          className="flex h-5 w-5 items-center justify-center rounded hover:bg-black/10 text-muted-foreground md:hidden md:group-hover:flex"
           aria-label="하위 페이지 추가"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -182,6 +184,8 @@ export function NotionSidebar({
   userName,
   navTree,
   activeId,
+  mobileOpen,
+  desktopCollapsed,
   onSelect,
   onCollapse,
   onCreatePage,
@@ -193,7 +197,14 @@ export function NotionSidebar({
   const initial = userName.trim().charAt(0) || '?'
 
   return (
-    <aside className="flex h-full w-60 shrink-0 flex-col bg-sidebar border-r border-sidebar-border select-none">
+    <aside
+      className={cn(
+        'flex h-full w-60 shrink-0 flex-col bg-sidebar border-r border-sidebar-border select-none',
+        'max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:shadow-xl max-md:transition-transform',
+        mobileOpen ? 'max-md:translate-x-0' : 'max-md:-translate-x-full',
+        desktopCollapsed && 'md:hidden',
+      )}
+    >
       <div className="group flex items-center gap-2 px-3 h-11 shrink-0 hover:bg-sidebar-accent/60 cursor-pointer">
         <div className="flex h-5 w-5 items-center justify-center rounded bg-foreground text-[11px] font-semibold text-background shrink-0">
           {initial}
@@ -206,7 +217,7 @@ export function NotionSidebar({
         <button
           type="button"
           onClick={onCollapse}
-          className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-black/10"
+          className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground md:opacity-0 md:group-hover:opacity-100 hover:bg-black/10"
           aria-label="사이드바 접기"
         >
           <ChevronsLeft className="h-4 w-4" />
@@ -214,7 +225,7 @@ export function NotionSidebar({
         <button
           type="button"
           onClick={() => onCreatePage()}
-          className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-black/10"
+          className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground md:opacity-0 md:group-hover:opacity-100 hover:bg-black/10"
           aria-label="새 페이지"
         >
           <FilePlus className="h-4 w-4" />

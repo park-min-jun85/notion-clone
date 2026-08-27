@@ -13,6 +13,7 @@ import type { NotionPage } from '@/lib/notion-data'
 import { BlockEditor } from './notion-blocks'
 import { Menu, MenuItem } from '@/components/menu'
 import { PAGE_COVERS, PAGE_ICONS } from '@/lib/page-presets'
+import { cn } from '@/lib/utils'
 
 type Props = {
   page: NotionPage
@@ -43,18 +44,19 @@ export function NotionPageView({
 }: Props) {
   return (
     <div className="flex h-full flex-1 flex-col bg-background min-w-0">
-      <header className="flex items-center gap-1 px-3 h-11 shrink-0 text-sm">
-        {sidebarCollapsed && (
-          <button
-            type="button"
-            onClick={onExpandSidebar}
-            className="mr-1 flex h-7 w-7 items-center justify-center rounded text-muted-foreground hover:bg-accent"
-            aria-label="사이드바 열기"
-          >
-            <PanelLeft className="h-[18px] w-[18px]" />
-          </button>
-        )}
-        <nav className="flex items-center gap-0.5 min-w-0" aria-label="breadcrumb">
+      <header className="flex items-center gap-1 px-2 md:px-3 h-11 shrink-0 text-sm">
+        <button
+          type="button"
+          onClick={onExpandSidebar}
+          className={cn(
+            'mr-1 flex h-8 w-8 items-center justify-center rounded text-muted-foreground hover:bg-accent',
+            !sidebarCollapsed && 'md:hidden',
+          )}
+          aria-label="사이드바 열기"
+        >
+          <PanelLeft className="h-[18px] w-[18px]" />
+        </button>
+        <nav className="flex items-center gap-0.5 min-w-0 overflow-x-auto" aria-label="breadcrumb">
           {breadcrumb.map((crumb, i) => (
             <div key={crumb.id} className="flex items-center gap-0.5 min-w-0">
               {i > 0 && (
@@ -66,7 +68,7 @@ export function NotionPageView({
                 className="flex items-center gap-1.5 rounded px-1.5 py-1 hover:bg-accent min-w-0"
               >
                 <span className="text-sm leading-none">{crumb.icon}</span>
-                <span className="truncate text-foreground max-w-[180px]">
+                <span className="truncate text-foreground max-w-[120px] md:max-w-[180px]">
                   {crumb.title}
                 </span>
               </button>
@@ -74,22 +76,24 @@ export function NotionPageView({
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-0.5 text-muted-foreground">
+        <div className="ml-auto flex items-center gap-0.5 text-muted-foreground shrink-0">
           <button
             type="button"
-            className="rounded px-2 py-1 text-sm hover:bg-accent"
+            className="hidden rounded px-2 py-1 text-sm hover:bg-accent sm:block"
           >
             공유
           </button>
-          <IconBtn label="댓글">
-            <MessageSquare className="h-[18px] w-[18px]" />
-          </IconBtn>
-          <IconBtn label="수정 기록">
-            <Clock className="h-[18px] w-[18px]" />
-          </IconBtn>
-          <IconBtn label="즐겨찾기">
-            <Star className="h-[18px] w-[18px]" />
-          </IconBtn>
+          <div className="hidden md:flex items-center gap-0.5">
+            <IconBtn label="댓글">
+              <MessageSquare className="h-[18px] w-[18px]" />
+            </IconBtn>
+            <IconBtn label="수정 기록">
+              <Clock className="h-[18px] w-[18px]" />
+            </IconBtn>
+            <IconBtn label="즐겨찾기">
+              <Star className="h-[18px] w-[18px]" />
+            </IconBtn>
+          </div>
           <Menu
             align="end"
             trigger={
@@ -119,13 +123,13 @@ export function NotionPageView({
 
       <div className="flex-1 overflow-y-auto">
         {page.cover ? (
-          <div className="group/cover relative h-[30vh] max-h-64 w-full overflow-hidden">
+          <div className="group/cover relative h-[22vh] max-h-48 w-full overflow-hidden md:h-[30vh] md:max-h-64">
             <img
               src={page.cover}
               alt=""
               className="h-full w-full object-cover"
             />
-            <div className="absolute right-4 bottom-3 hidden gap-1 group-hover/cover:flex">
+            <div className="absolute right-2 bottom-2 flex max-w-[calc(100%-1rem)] flex-wrap justify-end gap-1 md:right-4 md:bottom-3 md:hidden md:group-hover/cover:flex">
               {PAGE_COVERS.filter((cover) => cover.src).map((cover) => (
                 <button
                   key={cover.id}
@@ -147,13 +151,13 @@ export function NotionPageView({
           </div>
         ) : null}
 
-        <article className="mx-auto w-full max-w-[708px] px-6 md:px-12 lg:px-24 pb-40">
-          <div className={page.cover ? '-mt-[46px] relative' : 'pt-16'}>
+        <article className="mx-auto w-full max-w-[708px] px-4 md:px-12 lg:px-24 pb-40">
+          <div className={page.cover ? '-mt-[46px] relative' : 'pt-10 md:pt-16'}>
             <Menu
               trigger={
                 <button
                   type="button"
-                  className="block text-[78px] leading-none rounded hover:bg-accent/50"
+                  className="block text-[56px] md:text-[78px] leading-none rounded hover:bg-accent/50"
                   aria-label="아이콘 변경"
                 >
                   {page.icon}
@@ -188,7 +192,7 @@ export function NotionPageView({
 
           <h1
             key={`title-${page.id}`}
-            className="mt-1 mb-2 text-[40px] font-bold leading-tight tracking-tight text-foreground outline-none"
+            className="mt-1 mb-2 text-[32px] md:text-[40px] font-bold leading-tight tracking-tight text-foreground outline-none"
             contentEditable
             suppressContentEditableWarning
             spellCheck={false}

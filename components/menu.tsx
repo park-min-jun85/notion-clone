@@ -38,7 +38,7 @@ export function Menu({
       {open && (
         <div
           className={cn(
-            "absolute z-30 mt-1 min-w-[180px] overflow-hidden rounded-md border border-border bg-background py-1 shadow-md",
+            "absolute z-30 mt-1 min-w-[180px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-md border border-border bg-background py-1 shadow-md",
             align === "end" ? "right-0" : "left-0",
           )}
           role="menu"

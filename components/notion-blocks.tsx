@@ -304,7 +304,7 @@ export function BlockEditor({
 
   return (
     <div
-      className="text-foreground pl-10 -ml-2 md:-ml-10"
+      className="text-foreground pl-8 -ml-2 md:pl-10 md:-ml-10"
       onKeyDown={(event) => {
         if (!slash) return
         if (event.key === 'ArrowDown') {
@@ -323,10 +323,10 @@ export function BlockEditor({
     >
       {local.map((block, i) => (
         <div key={`${pageId}-${i}`} className="group/block relative">
-          <div className="absolute -left-10 top-1 hidden items-center text-muted-foreground group-hover/block:flex">
+          <div className="absolute -left-8 top-1 hidden items-center text-muted-foreground group-focus-within/block:flex md:-left-10 md:hidden md:group-hover/block:flex">
             <button
               type="button"
-              className="flex h-5 w-5 items-center justify-center rounded hover:bg-accent"
+              className="flex h-7 w-7 items-center justify-center rounded hover:bg-accent md:h-5 md:w-5"
               aria-label="아래에 블록 추가"
               onClick={() => insertBelow(i)}
             >
@@ -336,7 +336,7 @@ export function BlockEditor({
               trigger={
                 <button
                   type="button"
-                  className="flex h-5 w-5 items-center justify-center rounded hover:bg-accent"
+                  className="flex h-7 w-7 items-center justify-center rounded hover:bg-accent md:h-5 md:w-5"
                   aria-label="블록 메뉴"
                 >
                   <GripVertical className="h-3.5 w-3.5" />
@@ -384,7 +384,7 @@ export function BlockEditor({
           />
           {slash?.index === i && filteredCommands.length > 0 && (
             <div
-              className="absolute z-20 mt-1 w-64 overflow-hidden rounded-md border border-border bg-background py-1 shadow-md"
+              className="absolute z-20 mt-1 w-64 max-w-[calc(100vw-2rem)] overflow-hidden rounded-md border border-border bg-background py-1 shadow-md"
               role="listbox"
             >
               {filteredCommands.map((command, commandIndex) => (

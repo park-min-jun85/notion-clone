@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState, useTransition } from "react"
+import { PanelLeft } from "lucide-react"
 import { NotionSidebar } from "@/components/notion-sidebar"
 import { NotionPageView } from "@/components/notion-page"
 import {
@@ -24,6 +25,7 @@ export function NotionWorkspace({ user, initialPages }: Props) {
   const [pages, setPages] = useState(initialPages)
   const [activeId, setActiveId] = useState(initialPages[0]?.id ?? "")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
     if (pages.length === 0) {
@@ -50,6 +52,7 @@ export function NotionWorkspace({ user, initialPages }: Props) {
       const created = await createPage(parentId)
       setPages((prev) => [...prev, created])
       setActiveId(created.id)
+      setMobileOpen(false)
     })
   }
 
@@ -113,33 +116,75 @@ export function NotionWorkspace({ user, initialPages }: Props) {
     })
   }
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMobileOpen(false)
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [])
+
+  useEffect(() => {
+    if (!mobileOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [mobileOpen])
+
+  function openSidebar() {
+    setMobileOpen(true)
+    setSidebarCollapsed(false)
+  }
+
+  function closeSidebar() {
+    setMobileOpen(false)
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      setSidebarCollapsed(true)
+    }
+  }
+
+  function handleSelectPage(id: string) {
+    setActiveId(id)
+    setMobileOpen(false)
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      {!sidebarCollapsed && (
-        <NotionSidebar
-          userName={user.name}
-          navTree={navTree}
-          activeId={page?.id ?? ""}
-          onSelect={setActiveId}
-          onCollapse={() => setSidebarCollapsed(true)}
-          onCreatePage={handleCreate}
-          onRenamePage={handleRename}
-          onDuplicatePage={handleDuplicate}
-          onDeletePage={handleDelete}
-          onSignOut={() => {
-            startTransition(async () => {
-              await signOutAction()
-            })
-          }}
+    <div className="flex h-dvh overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+      {mobileOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          aria-label="사이드바 닫기"
+          onClick={() => setMobileOpen(false)}
         />
       )}
+      <NotionSidebar
+        userName={user.name}
+        navTree={navTree}
+        activeId={page?.id ?? ""}
+        mobileOpen={mobileOpen}
+        desktopCollapsed={sidebarCollapsed}
+        onSelect={handleSelectPage}
+        onCollapse={closeSidebar}
+        onCreatePage={handleCreate}
+        onRenamePage={handleRename}
+        onDuplicatePage={handleDuplicate}
+        onDeletePage={handleDelete}
+        onSignOut={() => {
+          startTransition(async () => {
+            await signOutAction()
+          })
+        }}
+      />
       {page ? (
         <NotionPageView
           page={page}
           breadcrumb={breadcrumb}
           sidebarCollapsed={sidebarCollapsed}
-          onExpandSidebar={() => setSidebarCollapsed(false)}
-          onSelectPage={setActiveId}
+          onExpandSidebar={openSidebar}
+          onSelectPage={handleSelectPage}
           onTitleChange={handleTitleChange}
           onIconChange={handleIconChange}
           onCoverChange={handleCoverChange}
@@ -148,15 +193,27 @@ export function NotionWorkspace({ user, initialPages }: Props) {
           onDelete={() => handleDelete(page.id)}
         />
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-          <p>아직 페이지가 없습니다.</p>
-          <button
-            type="button"
-            onClick={() => handleCreate()}
-            className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
-          >
-            새 페이지 만들기
-          </button>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="flex h-11 shrink-0 items-center px-3">
+            <button
+              type="button"
+              onClick={openSidebar}
+              className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground hover:bg-accent md:hidden"
+              aria-label="사이드바 열기"
+            >
+              <PanelLeft className="h-[18px] w-[18px]" />
+            </button>
+          </header>
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-muted-foreground">
+            <p>아직 페이지가 없습니다.</p>
+            <button
+              type="button"
+              onClick={() => handleCreate()}
+              className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+            >
+              새 페이지 만들기
+            </button>
+          </div>
         </div>
       )}
     </div>
