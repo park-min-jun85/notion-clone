@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { getSupabaseEnv } from "./env"
+import { toNextCookieOptions } from "./cookies"
 
 export async function createClient() {
   const cookieStore = await cookies()
@@ -14,7 +15,7 @@ export async function createClient() {
       setAll(cookiesToSet, _headers) {
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
+            cookieStore.set(name, value, toNextCookieOptions(options)),
           )
         } catch {
           // Called from a Server Component. The Proxy refreshes cookies.

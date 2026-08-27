@@ -8,5 +8,9 @@ export function createClient() {
       path: "/",
       sameSite: "lax",
     },
+    auth: {
+      detectSessionInUrl: false,
+      persistSession: true,
+    },
   })
 }
